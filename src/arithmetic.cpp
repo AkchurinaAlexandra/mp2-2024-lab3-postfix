@@ -206,3 +206,4 @@ double TPostfix::custom_stod(const std::string &str){
     }
 
     return mantissa * std::pow(10, exponent);
+}
