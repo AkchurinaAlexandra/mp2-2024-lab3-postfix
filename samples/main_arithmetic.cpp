@@ -1,51 +1,44 @@
 #include <iostream>
 #include <string>
 #include "arithmetic.h"
-#include <windows.h>
-using namespace std;
 
+int main() {
+    std::string expression;
+    std::cout << "Format:\n "
+                 "1. Supported operators: +, -, ~(unary minus), *, /, sin, cos\n "
+                 "2. Variables are supported\n "
+                 "3. Brackets are supported\n "
+                 "4. Unary minus is supported (- or ~)\n"
+                 "5. Change of variable's value is not allowed";
 
-int main()
-{
-	string expression;
-	setlocale(LC_ALL, "ru");
-	setlocale(LC_NUMERIC, "en");
-	system("title Postfix form calculator");
-	bool flag = 0;
-	while (!flag)
-	{
-		cout << "Enter expression: ";
-		getline(cin, expression);
-		try {
-			TPostfix tmp(expression);
-			flag = true;
-		}
-		catch (invalid_argument) {
-			cout << "Wrong expression!" << endl;
-			system("PAUSE");
-			system("cls");
-		}
-	}
-	TPostfix postfix(expression);
-	auto m = postfix.getOperands();
-	for (auto& op : m)
-	{
-		if (isalpha(op.first[0]))
-		{
-			string val;
-			cout << "Enter value for " << op.first << ": ";
-			cin >> val;
-			op.second = stod(val);
-		}
-	}
-	cout << "Arithmetic expression: " << postfix.getInfix() << endl;
-	cout << "Postfix form: " << postfix.getPostfix() << endl;
-	try {
-		cout << "Calculated value: " << postfix.calculate(m) << endl;
-	}
-	catch (logic_error) {
-		cout << "Calculate error!" << endl;
-		exit(0);
-	}
-	return 0;
+    std::cout << "Enter the expression: ";
+    std::getline(std::cin, expression);
+
+    TPostfix postfix(expression);
+
+    char choice;
+    do {
+        std::cout << "Do you want to set a variable? (y/n): ";
+        std::cin >> choice;
+        if (choice == 'y' || choice == 'Y') {
+            std::string var;
+            double value;
+            std::cout << "Enter variable name: ";
+            std::cin >> var;
+            std::cout << "Enter variable value: ";
+            std::cin >> value;
+            postfix.setVariable(var, value);
+        }
+    } while (choice == 'y' || choice == 'Y');
+
+    try {
+        postfix.toPostfix();
+        double result = postfix.evaluate();
+        std::cout << "The result is: " << result << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return 0;
 }
+

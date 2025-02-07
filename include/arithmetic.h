@@ -1,41 +1,28 @@
-#ifndef __POSTFIX_H__
-#define __POSTFIX_H__
-
+#pragma once
 #include "stack.h"
 #include <string>
+#include <cmath>
 #include <stdexcept>
 #include <iostream>
-#include <cmath>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <iterator>
-#include <cctype>
-#include <functional>
 
-using namespace std;
+class TPostfix {
+ private:
+    std::string infix;      // "3 + 2 * 10"
+    std::string postfix;    // "3 2 10 * +"
+    TVector<std::string> varNames;
+    TVector<double> varValues;
 
-class TPostfix
-{
-    static map<string, function<double(double, double)> > binaryOperations; 
-    double to_double(const string& str);
-    static map<string, function<double(double)>> unaryOperations;           
-    static map<string, unsigned int> priority;                              
-    string infix = "";                                                      
-    string postfix = "";                                                    
-    map<string, double> operands;                                           
-    vector<string> lexems;                                                  
-    inline bool isOperator(const string s);                                 
-    void split();                                                           
-    void toPostfix();                                                       
-    inline void updatePostfix(const string s) noexcept;                     
+    static int precedence(const std::string& op);
+    double getVariableValue(const std::string& var);
+    static bool isOperator(char c);
+    static bool isPrefix(const std::string& s);
 
-public:
-    TPostfix();                                                             
-    TPostfix(string str);                                                   
-    string getInfix() const noexcept;                                       
-    string getPostfix() const noexcept;                                     
-    map<string, double> getOperands() const noexcept;                       
-    double calculate(map<string, double> values);                           
+    static double custom_stod(const std::string& str);
+
+ public:
+    TPostfix(const std::string& expr);
+    void setVariable(const std::string& var, double value);
+    std::string getPostfix();
+    void toPostfix();
+    double evaluate();
 };
-#endif

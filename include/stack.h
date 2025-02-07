@@ -1,127 +1,28 @@
+// ���������� � ���������� ���������� �����
+// ���� ������������ ��������: 
+// - ������� ��������, 
+// - ���������� ��������, 
+// - �������� �������� �������� (��� ��������)
+// - �������� �� �������, 
+// - ��������� ���������� ��������� � �����
+// - ������� �����
+// ��� ������� � ������ ���� ������ �������������� ������
 
-#ifndef __STACK_H__
-#define __STACK_H__
+// ��������� ����� �����
+#pragma once
+#include "vector.h"
 
-using namespace std;
-const int MaxStackSize = 129;
+template <typename T>
+class TStack {
+ private:
+    TVector<T> vec;
 
-template <class T>
-class TStack
-{
-    T* pMem;                                   
-    size_t size;                               
-    size_t top;                                
-public:
-    TStack();                                  
-    TStack(size_t _size);                      
-    TStack(const TStack<T>& st);               
-    ~TStack();                                 
-    inline bool empty();                       
-    size_t getSize() const noexcept;           
-    T getTop() const;                          
-    void push(T val);                          
-    T pop();                                   
-
-    TStack<T>& operator=(const TStack<T>& st);
-    bool operator==(const TStack<T>& st) const;
-    bool operator!=(const TStack<T>& st) const;
+ public:
+    void push(const T& value) { vec.push_back(value); }
+    T pop() { return vec.pop_back(); }
+    T top() { return vec.back(); }
+    bool empty() const { return vec.empty(); }
+    size_t size() const { return vec.get_size(); }
+    void clear() { vec.clear(); }
 };
 
-template <class T>
-TStack<T>::~TStack() { delete[] pMem; }
-
-template <class T>
-TStack<T>::TStack() : TStack(8) {}
-
-template <class T>
-TStack<T>::TStack(size_t _size) : top(0), size(_size)
-{
-    if (size >= MaxStackSize || size <= 0)
-        throw invalid_argument("invalid stack size");
-    pMem = new T[size]();
-}
-
-template <class T>
-TStack<T>::TStack(const TStack<T>& st) : top(st.top), size(st.top)
-{
-    pMem = new T[size]();
-    copy(st.pMem, st.pMem + top, pMem);
-}
-
-template <class T>
-bool TStack<T>::operator==(const TStack<T>& st) const
-{
-    if (st.pMem == pMem)
-        return true;
-    if (top != st.top)
-        return false;
-    for (size_t i = 0; i < top; i++)
-        if (pMem[i] != st.pMem[i])
-            return false;
-    return true;
-}
-
-template <class T>
-bool TStack<T>::operator!=(const TStack<T>& st) const { return !(*this == st); }
-
-template <class T>
-inline bool TStack<T>::empty() { return top == 0; }
-
-template <class T>
-size_t TStack<T>::getSize() const noexcept { return top; }
-
-template <class T>
-T TStack<T>::getTop() const
-{
-    if (top <= 0)
-        throw runtime_error("stack is empty");
-    return(pMem[top - 1]);
-}
-
-template <class T>
-void TStack<T>::push(T val)
-{
-    if (top >= size)
-    {
-        size *= 2;
-        if (size > MaxStackSize)
-            throw runtime_error("too large stack");
-        T* tmp = new T[size];
-        copy(pMem, pMem + top, tmp);
-        delete[] pMem;
-        pMem = tmp;
-    }
-    pMem[top++] = val;
-}
-
-template <class T>
-T TStack<T>::pop()
-{
-    if (top <= 0)
-        throw runtime_error("stack is empty");
-    return pMem[--top];
-}
-
-template <class T>
-TStack<T>& TStack<T>::operator=(const TStack<T>& st)
-{
-    if (pMem == st.pMem)
-        return *this;
-    else if (top == st.top)
-        copy(st.pMem, st.pMem + top, pMem);
-    else
-    {
-        try {
-            top = st.top;
-            T* tmp = new T[top];
-            copy(st.pMem, st.pMem + top, tmp);
-            delete[] pMem;
-            pMem = tmp;
-        }
-        catch (...) {
-            throw runtime_error("can't create stack");
-        }
-    }
-    return *this;
-}
-#endif

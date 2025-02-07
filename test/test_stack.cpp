@@ -1,134 +1,112 @@
 #include "stack.h"
 #include <gtest.h>
 
-TEST(TStack, can_create_stack)
-{
-	ASSERT_NO_THROW(TStack<int> st);
+TEST(stack, can_push_element) {
+    TStack<int> s;
+    ASSERT_NO_THROW(s.push(3));
 }
 
-TEST(TStack, can_create_stack_with_positive_length)
-{
-	ASSERT_NO_THROW(TStack<int> st(5));
+TEST(stack, can_push_multiple_elements) {
+    TStack<int> s;
+    s.push(3);
+    s.push(2);
+    s.push(1);
+    ASSERT_EQ(s.size(), 3);
 }
 
-TEST(TStack, can_create_stack_with_negative_length)
-{
-	ASSERT_ANY_THROW(TStack<int> st(-5));
+TEST(stack, can_push_and_pop_element) {
+    TStack<int> s;
+    s.push(3);
+    s.push(2);
+    ASSERT_NO_THROW(s.pop());
 }
 
-TEST(TStack, can_create_copyed_stack)
-{
-	ASSERT_NO_THROW(TStack<int> st(TStack<int> s));
+TEST(stack, top) {
+    TStack<int> s;
+    s.push(3);
+    s.push(2);
+    ASSERT_EQ(s.top(), 2);
 }
 
-TEST(TStack, cant_create_too_large_stack)
-{
-	ASSERT_ANY_THROW(TStack<int> st(1000));
+TEST(stack, cant_pop_from_empty) {
+    TStack<int> s;
+    ASSERT_ANY_THROW(s.pop());
 }
 
-TEST(TStack, can_get_size)
-{
-	TStack<int> st(4);
-	ASSERT_NO_THROW(st.getSize());
+TEST(stack, right_empty_for_not_empty) {
+    TStack<int> s;
+    s.push(3);
+    s.push(2);
+    ASSERT_FALSE(s.empty());
 }
 
-TEST(TStack, can_get_top_element)
-{
-	TStack<int> st(4);
-	st.push(1);
-	ASSERT_NO_THROW(st.getTop());
+TEST(stack, right_empty_for_empty) {
+    TStack<int> s;
+    ASSERT_TRUE(s.empty());
 }
 
-TEST(TStack, can_push_element)
-{
-	TStack<int> st(4);
-	ASSERT_NO_THROW(st.push(34));
+TEST(stack, pop_delete_elements) {
+    TStack<int> s;
+    s.push(3);
+    s.push(2);
+    ASSERT_EQ(s.pop(), 2);
+    ASSERT_EQ(s.pop(), 3);
 }
 
-TEST(TStack, can_pop_element)
-{
-	TStack<int> st(4);
-	st.push(33);
-	ASSERT_NO_THROW(st.pop());
+TEST(stack, push_increases_size) {
+    TStack<int> s;
+    s.push(1);
+    ASSERT_EQ(s.size(), 1);
+    s.push(2);
+    ASSERT_EQ(s.size(), 2);
 }
 
-TEST(TStack, cant_pop_element_from_empty_stack)
-{
-	TStack<int> st(1);
-	ASSERT_ANY_THROW(st.pop());
+TEST(stack, pop_decreases_size) {
+    TStack<int> s;
+    s.push(1);
+    s.push(2);
+    s.pop();
+    ASSERT_EQ(s.size(), 1);
+    s.pop();
+    ASSERT_EQ(s.size(), 0);
 }
 
-TEST(TStack, cant_get_top_element_from_empty_stack)
-{
-	TStack<int> st(1);
-	ASSERT_ANY_THROW(st.getTop());
+TEST(stack, clear_makes_stack_empty) {
+    TStack<int> s;
+    s.push(1);
+    s.push(2);
+    s.clear();
+    ASSERT_TRUE(s.empty());
 }
 
-TEST(TStack, can_use_compare_operator)
-{
-	TStack<int> st, st2;
-	ASSERT_NO_THROW(st2 == st);
+TEST(stack, top_returns_last_pushed_element) {
+    TStack<int> s;
+    s.push(1);
+    ASSERT_EQ(s.top(), 1);
+    s.push(2);
+    ASSERT_EQ(s.top(), 2);
 }
 
-TEST(TStack, can_use_assign_operator)
-{
-	TStack<int> st, st2(4);
-	ASSERT_NO_THROW(st = st2);
+TEST(stack, multiple_push_and_pop_operations) {
+    TStack<int> s;
+    s.push(1);
+    s.push(2);
+    s.push(3);
+    ASSERT_EQ(s.pop(), 3);
+    s.push(4);
+    ASSERT_EQ(s.pop(), 4);
+    ASSERT_EQ(s.pop(), 2);
+    ASSERT_EQ(s.pop(), 1);
 }
 
-TEST(TStack, assign_operator)
-{
-	TStack<int> st, st2;
-	st.push(12);
-	st = st2;
-	EXPECT_EQ(st2, st);
-}
-
-TEST(TStack, assign_operator_change_stack_size)
-{
-	TStack<int> st, st2;
-	st2.push(12); st2.push(22);
-	st = st2;
-	EXPECT_EQ(st.getSize(), 2);
-}
-
-TEST(TStack, copy_create_equal_vector)
-{
-	TStack<int> st2;
-	st2.push(12); st2.push(22);
-	TStack<int> st(st2);
-	EXPECT_EQ(st, st2);
-}
-
-TEST(TStack, operator_push_element)
-{
-	TStack<int> st(1);
-	st.push(33);
-	EXPECT_EQ(st.getTop(), 33);
-}
-
-TEST(TStack, operator_pop_element)
-{
-	TStack<int> st(1);
-	st.push(33);
-	EXPECT_EQ(st.pop(), 33);
-}
-
-TEST(TStack, double_operator_pop_and_push)
-{
-	TStack<int> st(3);
-	st.push(33);
-	st.push(32);
-	st.pop();
-	EXPECT_EQ(st.pop(), 33);
-}
-
-TEST(TStack, double_operator_pop_create_stack_empry)
-{
-	TStack<int> st(3);
-	st.push(33);
-	st.push(32);
-	st.pop();
-	st.pop();
-	ASSERT_ANY_THROW(st.getTop());
-}
+TEST(stack, stack_empty_after_pops) {
+    TStack<int> s;
+    s.push(1);
+    s.push(2);
+    s.push(3);
+    s.pop();
+    s.push(4);
+    s.pop();
+    s.pop();
+    s.pop();
+    ASSERT_TRUE(s.empty());

@@ -1,184 +1,208 @@
+// ���������� ������� � ������� ��� ���������� �������������� ���������
+
 #include "arithmetic.h"
 
-TPostfix::TPostfix() : infix("1+2-3*5") {}
+TPostfix::TPostfix(const std::string& expr) : infix(expr) {}
 
-TPostfix::TPostfix(string str) : infix(str)
-{
-	split(); toPostfix();
+void TPostfix::setVariable(const std::string& var, double value) {
+    varNames.push_back(var);
+    varValues.push_back(value);
 }
 
-string TPostfix::getInfix() const noexcept { return infix; }
-
-string TPostfix::getPostfix() const noexcept { return postfix; }
-
-double factorial(size_t n) { return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n; }
-
-map<string, double> TPostfix::getOperands() const  noexcept { return operands; }
-
-inline void TPostfix::updatePostfix(const string s) noexcept { postfix += (s == "~" ? "-" : s); }
-
-map<string, unsigned int> TPostfix::priority = {
-	{"(", 1}, {"+", 2}, {"-", 2}, {"*", 3}, {"/", 3}, {"%", 3}, {"~", 4}, {"^", 5}, {"!", 5}, {"sin", 6}, {"cos", 6},
-	{"exp", 6}, {"tg", 6}, {"sqrt", 6} };
-
-map<string, function<double(double, double)> > TPostfix::binaryOperations = {
-	{"+", [](double a, double b) {return a + b; }},
-	{"-", [](double a, double b) {return a - b; }},
-	{"/", [](double a, double b) {if (b == 0) throw logic_error("cant be calculated"); return a / b; }},
-	{"*", [](double a, double b) {return a * b; }},
-	{"%", [](double a, double b) {if (b == 0) throw logic_error("cant be calculated"); return fmod(a,b); }},
-	{"^", [](double a, double b) {return pow(a,b); }}
-};
-
-map<string, function<double(double)>> TPostfix::unaryOperations = {
-	{"~", [](double a) {return -a; }},
-	{"!", [](double a) {if (a < 0 || fmod(a,1.) != 0) throw logic_error("cant be calculated"); return factorial(size_t(a)); }},
-	{"sin", [](double a) {return sin(a); }},
-	{"cos", [](double a) {return cos(a); }},
-	{"exp", [](double a) {return exp(a); }},
-	{"tg", [](double a) {if (cos(a) == 0) throw logic_error("cant be calculated"); return sin(a) / cos(a); }},
-	{"abs", [](double a) {return a < 0 ? -a : a; }},
-	{"sqrt", [](double a) {if (a < 0)  throw logic_error("cant be calculated"); return sqrt(a); }},
-	
-};
-double TPostfix::to_double(const string& str) {
-	if (str.empty()) return 0.0;
-	double del = 10.0;
-	double res = 0.0;
-
-	int i = 0;
-	while (i < str.size() && str[i] != '.') {
-		if (isdigit(str[i])) {
-			res *= 10;
-			res += str[i] - '0';
-		}
-		++i;
-	}
-	++i;
-	while (i < str.size()) {
-		res += (str[i] - '0') / del;
-		++i;
-		del *= 10;
-	}
-	return (str.front() == '-') ? -res : res;
+std::string TPostfix::getPostfix() {
+    return postfix;
 }
 
-
-inline bool TPostfix::isOperator(const string s)
-{
-	auto& end = priority.end();
-	return (priority.find(s) != end || s == ")");
+int TPostfix::precedence(const std::string& op) {
+    if (op == "+" || op == "-") return 1;
+    if (op == "*" || op == "/") return 2;
+    if (op == "sin" || op == "cos" || op == "~") return 3;
+    return 0;
 }
 
-void TPostfix::split()
-{
-	if (infix.empty())
-		throw invalid_argument("syntax error");
-	string elem = "";
-	for (const char& cur : infix)
-	{
-		if (isalnum(cur) || cur == '.')
-			elem += cur;
-		else if (isOperator(string{ cur }))
-		{
-			if (!elem.empty())
-			{
-				lexems.push_back(elem);
-				elem = "";
-			}
-			lexems.push_back(string{ cur });
-		}
-	}
-	if (!elem.empty())
-		lexems.push_back(elem);
+double TPostfix::getVariableValue(const std::string& var) {
+    for (size_t i = 0; i < varNames.get_size(); i++) {
+        if (varNames[i] == var) return varValues[i];
+    }
+    throw std::runtime_error("Unknown variable: " + var);
 }
 
-void TPostfix::toPostfix()
-{
-	TStack<string> stack;
-	vector<string> tmp;
-	string prev = "";
-	for (auto& l : lexems)
-	{
-		if (!isOperator(l))
-		{
-			try
-			{
-				operands.emplace(l, stod(l));
-			}
-			catch (...) {
-				operands.emplace(l, 0);
-			}
-			tmp.push_back(l);
-			if (postfix != "")
-				postfix += " ";
-			updatePostfix(l);
-		}
-		else
-		{
-			switch (l[0])
-			{
-			case'(':
-				stack.push(l);
-				break;
-			case')':
-				while (stack.getTop() != "(")
-				{
-					string t = stack.pop();
-					tmp.push_back(t);
-					updatePostfix(t);
-				}
-				stack.pop();
-				break;
-			case '-':
-				if (prev == "" || prev == "(")
-					l = "~";
-			default:
-				while (!stack.empty() && priority[l] <= priority[stack.getTop()])
-				{
-					string t = stack.pop();
-					tmp.push_back(t);
-					updatePostfix(t);
-				}
-				stack.push(l);
-				break;
-			}
-
-		}
-		prev = l;
-	}
-	while (!stack.empty())
-	{
-		string t = stack.pop();
-		tmp.push_back(t);
-		updatePostfix(t);
-	}
-	lexems = tmp;
+bool TPostfix::isOperator(char c) {
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '~';
 }
 
-double TPostfix::calculate(map<string, double> values)
-{
-	double a, b;
-	TStack<double> stack;
-	auto& end = values.end();
-	auto& _end = binaryOperations.end();
-	for (auto& l : lexems)
-	{
-		if (values.find(l) != end)
-			stack.push(values[l]);
-		else
-		{
-			if (binaryOperations.find(l) != _end)
-			{
-				b = stack.pop(), a = stack.pop();
-				stack.push(binaryOperations[l](a, b));
-			}
-			else
-			{
-				a = stack.pop();
-				stack.push(unaryOperations[l](a));
-			}
-		}
-	}
-	return stack.getTop();
+bool TPostfix::isPrefix(const std::string& s) {
+    return s == "sin" || s == "cos" || s == "~";
 }
+
+void TPostfix::toPostfix() {
+    postfix = "";
+    TStack<std::string> stack;
+    std::string token;
+    bool unary = true; // ����� �� ��������� ����� �������
+    for (size_t i = 0; i < infix.size(); i++) {
+        if (isdigit(infix[i]) || isalpha(infix[i]) || (i != 0 && (infix[i - 1] == 'e' || infix[i - 1] == 'E'))) {
+            token += infix[i];
+        } else {
+            if (!token.empty()) {
+                if (isPrefix(token)) {
+                    stack.push(token);
+                    unary = true;
+                } else {
+                    postfix += token + " ";
+                    unary = false;
+                }
+                token.clear();
+            }
+            if (infix[i] == '(') {
+                stack.push("(");
+                unary = true;
+            } else if (infix[i] == ')') {
+                while (!stack.empty() && stack.top() != "(") {
+                    postfix += stack.top() + " ";
+                    stack.pop();
+                }
+                if (stack.empty() || stack.top() != "(") {
+                    throw std::logic_error("Mismatched parentheses");
+                }
+                stack.pop();
+                if (!stack.empty() && isPrefix(stack.top())) {
+                    postfix += stack.top() + " ";
+                    stack.pop();
+                }
+                unary = false;
+            } else if (isOperator(infix[i])) {
+
+                if ((infix[i] == '-' || infix[i] == '~') && unary) {
+                    stack.push("~");
+                    continue;
+                }
+
+                std::string op(1, infix[i]);
+                while (!stack.empty() && precedence(stack.top()) >= precedence(op)) {
+                    postfix += stack.top() + " ";
+                    stack.pop();
+                }
+                stack.push(op);
+                unary = true;
+            } else if (!isspace(infix[i])) {
+                throw std::logic_error("Invalid character in expression: " + std::string(1, infix[i]));
+            }
+        }
+    }
+    if (!token.empty()) postfix += token + " ";
+    while (!stack.empty()) {
+        if (!isPrefix(stack.top()) && !isOperator(stack.top()[0])) {
+            throw std::logic_error("Mismatched parentheses");
+        }
+        postfix += stack.top() + " ";
+        stack.pop();
+    }
+}
+
+double TPostfix::evaluate() {
+    TStack<double> stack;
+    std::string token;
+    for (size_t i = 0; i < postfix.size(); i++) {
+        if (postfix[i] != ' ') {
+            token += postfix[i];
+        } else {
+            if (!token.empty()) {
+                if (isdigit(token[0])) {
+                    stack.push(custom_stod(token));
+                } else if (isPrefix(token)) {
+                    if (stack.empty()) {
+                        throw std::logic_error("Insufficient operands for function: " + token);
+                    }
+                    double a = stack.pop();
+                    if (token == "sin") stack.push(sin(a));
+                    if (token == "cos") stack.push(cos(a));
+                    if (token == "~") stack.push(-a);
+                } else if (isalpha(token[0])) {
+                    stack.push(getVariableValue(token));
+                } else {
+                    if (stack.size() < 2) {
+                        throw std::logic_error("Insufficient operands for operator: " + token);
+                    }
+                    double b = stack.pop();
+                    double a = stack.pop();
+                    if (token == "+") stack.push(a + b);
+                    else if (token == "-") stack.push(a - b);
+                    else if (token == "*") stack.push(a * b);
+                    else if (token == "/") stack.push(a / b);
+                }
+                token.clear();
+            }
+        }
+    }
+    if (stack.size() != 1) {
+        throw std::logic_error("Invalid expression");
+    }
+    return stack.top();
+}
+double TPostfix::custom_stod(const std::string &str){
+    size_t e_pos = str.find_first_of("eE");
+    std::string mantissa_str = str;
+    std::string exponent_str = "0";
+
+    if (e_pos != std::string::npos) {
+        mantissa_str = str.substr(0, e_pos);
+        exponent_str = str.substr(e_pos + 1);
+    }
+
+    double mantissa = 0.0;
+    double factor = 1.0;
+    bool decimal_point = false;
+    bool negative = false;
+    size_t i = 0;
+
+    if (mantissa_str[i] == '-') {
+        negative = true;
+        i++;
+    } else if (mantissa_str[i] == '+') {
+        i++;
+    }
+
+    for (; i < mantissa_str.size(); i++) {
+        if (mantissa_str[i] == '.') {
+            decimal_point = true;
+            continue;
+        }
+        if (mantissa_str[i] < '0' || mantissa_str[i] > '9') {
+            throw std::invalid_argument("Invalid character in mantissa");
+        }
+        if (decimal_point) {
+            factor /= 10.0;
+            mantissa += (mantissa_str[i] - '0') * factor;
+        } else {
+            mantissa = mantissa * 10.0 + (mantissa_str[i] - '0');
+        }
+    }
+
+    if (negative) {
+        mantissa = -mantissa;
+    }
+
+    int exponent = 0;
+    negative = false;
+    i = 0;
+
+    if (exponent_str[i] == '-') {
+        negative = true;
+        i++;
+    } else if (exponent_str[i] == '+') {
+        i++;
+    }
+
+    for (; i < exponent_str.size(); i++) {
+        if (!isdigit(exponent_str[i])) {
+            throw std::invalid_argument("Invalid character in exponent");
+        }
+        exponent = exponent * 10 + (exponent_str[i] - '0');
+    }
+
+    if (negative) {
+        exponent = -exponent;
+    }
+
+    return mantissa * std::pow(10, exponent);

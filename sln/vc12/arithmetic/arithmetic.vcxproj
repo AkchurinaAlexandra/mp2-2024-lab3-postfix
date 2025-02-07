@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\include\arithmetic.h" />
     <ClInclude Include="..\..\..\include\stack.h" />
+    <ClInclude Include="vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
