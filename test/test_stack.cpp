@@ -110,3 +110,4 @@ TEST(stack, stack_empty_after_pops) {
     s.pop();
     s.pop();
     ASSERT_TRUE(s.empty());
+}
