@@ -1,4 +1,4 @@
-// реализация функций и классов для вычисления арифметических выражений
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 #include "arithmetic.h"
 
@@ -39,7 +39,7 @@ void TPostfix::toPostfix() {
     postfix = "";
     TStack<std::string> stack;
     std::string token;
-    bool unary = true; // Будет ли считанный минус унарным
+    bool unary = true; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     for (size_t i = 0; i < infix.size(); i++) {
         if (isdigit(infix[i]) || isalpha(infix[i]) || (i != 0 && (infix[i - 1] == 'e' || infix[i - 1] == 'E'))) {
             token += infix[i];
@@ -206,4 +206,3 @@ double TPostfix::custom_stod(const std::string &str){
     }
 
     return mantissa * std::pow(10, exponent);
-}
