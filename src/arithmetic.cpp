@@ -1,5 +1,3 @@
-// ���������� ������� � ������� ��� ���������� �������������� ���������
-
 #include "arithmetic.h"
 
 TPostfix::TPostfix(const std::string& expr) : infix(expr) {}
@@ -39,9 +37,11 @@ void TPostfix::toPostfix() {
     postfix = "";
     TStack<std::string> stack;
     std::string token;
-    bool unary = true; // ����� �� ��������� ����� �������
+    bool unary = true; // Будет ли следующий минус унарным
     for (size_t i = 0; i < infix.size(); i++) {
-        if (isdigit(infix[i]) || isalpha(infix[i]) || (i != 0 && (infix[i - 1] == 'e' || infix[i - 1] == 'E'))) {
+        if (isdigit(infix[i]) || isalpha(infix[i]) || infix[i] == '.' || (i != 0 && (infix[i - 1] == 'e' || infix[i - 1]
+        ==
+        'E'))) {
             token += infix[i];
         } else {
             if (!token.empty()) {
@@ -99,6 +99,7 @@ void TPostfix::toPostfix() {
         stack.pop();
     }
 }
+
 
 double TPostfix::evaluate() {
     TStack<double> stack;
@@ -207,3 +208,4 @@ double TPostfix::custom_stod(const std::string &str){
 
     return mantissa * std::pow(10, exponent);
 }
+
