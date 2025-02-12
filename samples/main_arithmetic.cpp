@@ -5,11 +5,12 @@
 int main() {
     std::string expression;
     std::cout << "Format:\n "
-                 "1. Supported operators: +, -, ~(unary minus), *, /, sin, cos\n "
-                 "2. Variables are supported\n "
-                 "3. Brackets are supported\n "
+                 "1. Supported operators: +, -, ~(unary minus), *, /, sin, cos\n"
+                 "2. Variables are supported (Uppercase X and lowercase x are different)\n"
+                 "3. Brackets are supported\n"
                  "4. Unary minus is supported (- or ~)\n"
-                 "5. Change of variable's value is not allowed";
+                 "5. Change of variable's value is not allowed\n"
+                 "6. Argument of sin/cos must be divided by space or being in brackets (example: sin x; sin(x))\n";
 
     std::cout << "Enter the expression: ";
     std::getline(std::cin, expression);
@@ -41,4 +42,3 @@ int main() {
 
     return 0;
 }
-
